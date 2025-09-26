@@ -85,3 +85,109 @@ void displayPriceComparison(double grabFare, double taxiFare, double distance) {
     cout << "📊 Cost per km - GrabCar: RM" << (grabFare/distance) << " | Taxi: RM" << (taxiFare/distance) << endl;
     cout << "========================\n";
 }
+
+
+int main() {
+    int choice, hour, rating;
+    double distance, foodPrice, deliveryDistance;
+
+    // Variables for order count and ratings
+    int totalOrderCount = 0;
+    int carOrderCount = 0;
+    int carVoucherCount = 0;
+    vector<Order> orderHistory;
+
+    displayHeader(); // Display header at startup
+
+    do {
+        cout << "1. GrabCar\n";
+        cout << "2. GrabFood\n";
+        cout << "3. Available Voucher\n";
+        cout << "4. Order History\n";
+        cout << "5. Rating History\n";
+        cout << "6. Price Comparison Tool\n";
+        cout << "0. Exit\n";
+        cout << "Choose your service: ";
+        cin >> choice;
+
+        double fare = 0.0;
+        string serviceName;
+        bool usedFoodDiscount = false;
+
+        if (choice >= 1 && choice <= 2) {
+            clearScreen(); // Clear screen when entering GrabCar or GrabFood
+            displayHeader(); // Show header
+
+            switch(choice) {
+                case 1: { // GrabCar
+                    cout << "Enter distance (km): ";
+                    cin >> distance;
+                    fare = 3.0 + (distance * 1.5);
+                    serviceName = "GrabCar";
+
+                    // Apply GrabCar voucher if available
+                    double originalFare = fare;
+                    if (carVoucherCount > 0) {
+                        cout << "Use LDCW6123 voucher for 10% discount? (y/n): ";
+                        char useVoucher;
+                        cin >> useVoucher;
+                        if (useVoucher == 'y' || useVoucher == 'Y') {
+                            double discount = fare * 0.10;
+                            fare -= discount;
+                            carVoucherCount--;
+                            cout << "✅ LDCW6123 voucher applied! Discount: RM " << discount << endl;
+                            cout << "Car vouchers remaining: " << carVoucherCount << endl;
+                        }
+                    }
+                    break;
+                }
+
+                case 2: { // GrabFood
+                    cout << "Enter food price (RM): ";
+                    cin >> foodPrice;
+                    cout << "Enter distance from restaurant to your location (km): ";
+                    cin >> deliveryDistance;
+
+                    // Calculate delivery fee based on distance
+                    double deliveryFee = 3.0 + (deliveryDistance * 1.5);
+
+                    // Apply GrabFood discount if food price >= RM20
+                    if (foodPrice >= 20.0) {
+                        double foodDiscount = deliveryFee * 0.20;
+                        deliveryFee -= foodDiscount;
+                        usedFoodDiscount = true;
+                        cout << "✅ GrabFood discount applied! Delivery fee discount: RM " << foodDiscount << endl;
+                    }
+
+                    fare = foodPrice + deliveryFee;
+                    serviceName = "GrabFood";
+                    distance = deliveryDistance; // Store delivery distance
+                    break;
+                }
+            }
+
+            // Time-based surge pricing
+            cout << "Enter current hour (0 - 23): ";
+            cin >> hour;
+
+            double surgeMultiplier = 1.0;
+            if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) {
+                surgeMultiplier = 1.5;
+                cout << "⚠ Peak hour! Surge pricing applied (x1.5)\n";
+            }
+            fare *= surgeMultiplier;
+
+            // Show price comparison for GrabCar only
+            if (choice == 1) {
+                double taxiFare = calculateTaxiFare(distance, hour);
+                displayPriceComparison(fare, taxiFare, distance);
+
+                // Ask if user wants to proceed with GrabCar
+                cout << "Do you want to proceed with GrabCar booking? (y/n): ";
+                char proceed;
+                cin >> proceed;
+                if (proceed != 'y' && proceed != 'Y') {
+                    cout << "Booking cancelled. Returning to main menu...\n\n";
+                    continue;
+                }
+            }
