@@ -191,3 +191,113 @@ int main() {
                     continue;
                 }
             }
+
+            // Final output
+            cout << fixed << setprecision(2);
+            cout << "\n--- Grab Simulator Receipt ---\n";
+            cout << "Service: " << serviceName << endl;
+            if (choice == 2) { // GrabFood details
+                cout << "Food Price: RM " << foodPrice << endl;
+                cout << "Delivery Distance: " << deliveryDistance << " km" << endl;
+                double originalDeliveryFee = 3.0 + (deliveryDistance * 1.5);
+                if (usedFoodDiscount) {
+                    cout << "Original Delivery Fee: RM " << originalDeliveryFee << endl;
+                    cout << "Discounted Delivery Fee: RM " << (originalDeliveryFee * 0.80) << endl;
+                } else {
+                    cout << "Delivery Fee: RM " << originalDeliveryFee << endl;
+                }
+            } else {
+                cout << "Distance: " << distance << " km" << endl;
+            }
+            cout << "Total Fare: RM " << fare << endl;
+
+            // Rating system
+            cout << "Rate your experience (1-5 stars): ";
+            cin >> rating;
+            while (rating < 1 || rating > 5) {
+                cout << "Please enter a valid rating (1-5): ";
+                cin >> rating;
+            }
+
+            // Save order details
+            Order newOrder;
+            newOrder.orderNumber = totalOrderCount + 1;
+            newOrder.serviceType = serviceName;
+            newOrder.distance = distance;
+            newOrder.fare = fare;
+            newOrder.rating = rating;
+            orderHistory.push_back(newOrder);
+
+            totalOrderCount++;
+
+            // Only count GrabCar orders for car vouchers
+            if (choice == 1) {
+                carOrderCount++;
+
+                // Check if user qualifies for car voucher (every 5 GrabCar orders)
+                if (carOrderCount % 5 == 0) {
+                    carVoucherCount++;
+                    cout << "🎉 Congratulations! You've earned a LDCW6123 voucher for GrabCar!\n";
+                    cout << "Car vouchers: " << carVoucherCount << endl;
+                }
+            }
+
+            cout << "Thank you for using Grab!\n";
+            pressEnterToContinue(); // Wait for user input before returning to main menu
+        }
+        else if (choice == 3) { // Available Voucher
+            clearScreen(); // Clear screen
+            displayHeader(); // Show header
+
+            cout << "\n--- Available Voucher ---\n";
+
+            cout << "🚗 GrabCar Vouchers:\n";
+            if (carVoucherCount > 0) {
+                cout << "✅ LDCW6123 Vouchers Available: " << carVoucherCount << endl;
+                cout << "Discount: 10% off total fare\n";
+                cout << "How to use: Will be offered during GrabCar checkout\n";
+            } else {
+                cout << "No car vouchers available\n";
+                int carOrdersNeeded = 5 - (carOrderCount % 5);
+                if (carOrdersNeeded == 5) {
+                    cout << "Complete 5 GrabCar orders to earn your first car voucher\n";
+                } else {
+                    cout << "Complete " << carOrdersNeeded << " more GrabCar orders to earn next car voucher\n";
+                }
+            }
+
+            cout << "\n🍔 GrabFood Promotions:\n";
+            cout << "✅ Always available: Purchase >= RM20 = 20% off delivery fee\n";
+            cout << "Condition: Food price must be RM20 or more\n";
+            cout << "Discount: 20% off delivery fee only\n";
+
+            pressEnterToContinue(); // Wait for user input
+        }
+        else if (choice == 4) { // Order History
+            clearScreen(); // Clear screen
+            displayHeader(); // Show header
+
+            cout << "\n--- Order History ---\n";
+            cout << "Total Orders Completed: " << totalOrderCount << endl;
+            cout << "GrabCar Orders: " << carOrderCount << endl;
+            cout << "GrabFood Orders: " << (totalOrderCount - carOrderCount) << endl;
+            cout << "Available Car Vouchers: " << carVoucherCount << endl;
+
+            if (totalOrderCount > 0) {
+                cout << "\nDetailed Order History:\n";
+                cout << "======================\n";
+                for (const auto& order : orderHistory) {
+                    cout << "Order #" << order.orderNumber << endl;
+                    cout << "Service: " << order.serviceType << endl;
+                    if (order.serviceType == "GrabCar") {
+                        cout << "Distance: " << order.distance << " km" << endl;
+                    } else if (order.serviceType == "GrabFood") {
+                        cout << "Delivery Distance: " << order.distance << " km" << endl;
+                    }
+                    cout << "Fare: RM " << fixed << setprecision(2) << order.fare << endl;
+                    cout << "Rating: " << order.rating << "/5" << endl;
+                    cout << "------------------------" << endl;
+                }
+            } else {
+                cout << "No orders completed yet\n";
+            }
