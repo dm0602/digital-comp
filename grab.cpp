@@ -16,7 +16,7 @@ void clearScreen() {
     #endif
 }
 
-// Function to display the header
+
 void displayHeader() {
     cout << "=====================================\n";
     cout << "     Welcome to Grab Simulator!\n";
@@ -85,7 +85,6 @@ void displayPriceComparison(double grabFare, double taxiFare, double distance) {
     cout << "📊 Cost per km - GrabCar: RM" << (grabFare/distance) << " | Taxi: RM" << (taxiFare/distance) << endl;
     cout << "========================\n";
 }
-
 
 int main() {
     int choice, hour, rating;
@@ -301,3 +300,80 @@ int main() {
             } else {
                 cout << "No orders completed yet\n";
             }
+
+            pressEnterToContinue(); // Wait for user input
+        }
+        else if (choice == 5) { // Rating History
+            clearScreen(); // Clear screen
+            displayHeader(); // Show header
+
+            cout << "\n--- Rating History ---\n";
+            if (totalOrderCount > 0) {
+                double totalRatingPoints = 0;
+                for (const auto& order : orderHistory) {
+                    totalRatingPoints += order.rating;
+                }
+                double averageRating = totalRatingPoints / totalOrderCount;
+
+                cout << "Total Orders: " << totalOrderCount << endl;
+                cout << "GrabCar Orders: " << carOrderCount << endl;
+                cout << "GrabFood Orders: " << (totalOrderCount - carOrderCount) << endl;
+                cout << "Average Rating: " << fixed << setprecision(1) << averageRating << "/5\n";
+                cout << "Total Rating Points: " << totalRatingPoints << endl;
+
+                cout << "\nDetailed Rating History:\n";
+                cout << "=======================\n";
+                for (const auto& order : orderHistory) {
+                    cout << "Order #" << order.orderNumber << " (" << order.serviceType << "): ";
+                    cout << order.rating << "/5 stars" << endl;
+                }
+            } else {
+                cout << "No orders completed yet\n";
+            }
+
+            pressEnterToContinue(); // Wait for user input
+        }
+        else if (choice == 6) { // Price Comparison Tool
+            clearScreen(); // Clear screen
+            displayHeader(); // Show header
+
+            cout << "\n--- Price Comparison Tool ---\n";
+            cout << "Compare GrabCar vs Traditional Taxi fares\n";
+            cout << "Enter distance (km): ";
+            double compDistance;
+            cin >> compDistance;
+            cout << "Enter current hour (0-23): ";
+            int compHour;
+            cin >> compHour;
+
+            // Calculate both fares
+            double grabFare = 3.0 + (compDistance * 1.5);
+            double surgeMultiplier = 1.0;
+            if ((compHour >= 7 && compHour <= 9) || (compHour >= 17 && compHour <= 19)) {
+                surgeMultiplier = 1.5;
+                cout << "⚠ Peak hour detected! Surge pricing will be applied\n";
+            }
+            grabFare *= surgeMultiplier;
+
+            double taxiFare = calculateTaxiFare(compDistance, compHour);
+
+            displayPriceComparison(grabFare, taxiFare, compDistance);
+
+            // Additional insights
+            cout << "\n📋 Additional Insights:\n";
+            cout << "• GrabCar: Cashless, GPS tracking, driver ratings\n";
+            cout << "• Taxi: Cash/card accepted, traditional service\n";
+            cout << "• Peak hours: 7-9 AM, 5-7 PM\n";
+            cout << "• Taxi also charges extra during midnight (12-6 AM)\n";
+
+            pressEnterToContinue(); // Wait for user input
+        }
+        else if (choice != 0) {
+            cout << "Invalid choice. Please try again.\n";
+        }
+
+    } while (choice != 0);
+
+    cout << "Thank you for using Grab Simulator!\n";
+    return 0;
+}
