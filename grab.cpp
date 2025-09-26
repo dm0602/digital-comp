@@ -16,7 +16,6 @@ void clearScreen() {
     #endif
 }
 
-// Function to display the header
 void displayHeader() {
     cout << "=====================================\n";
     cout << "     Welcome to Grab Simulator!\n";
